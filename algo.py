@@ -6,8 +6,8 @@ from datetime import datetime
 
 # 1. Initialize Exchange Connection (Binance Testnet)
 exchange = ccxt.binance({
-    'apiKey': 'YOUR_TESTNET_API_KEY',     
-    'secret': 'YOUR_TESTNET_SECRET_KEY',  
+    'apiKey': 'AiZOnxG8QEUMtC9rqk6YFGUmVeHJHO5HDTMxfPk52F8IS3kKx8OKf4ojHRaOgXjC',     
+    'secret': 'xOLWId9We6FUt7ejb0zcg8LMHDSwqyTcgDrI4g0kwqoCJVaET13mmivc8o2ugh6n',  
     'enableRateLimit': True,
 })
 exchange.set_sandbox_mode(True)
