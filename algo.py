@@ -164,7 +164,7 @@ while True:
             current_state = 'NONE'
             print(f"Closed Position. Trade P/L: ${trade_profit:+.3f} | Total P/L: ${total_realized_pl:+.3f}\n")
 
-        time.sleep(5)
+        time.sleep(1)
 
     except Exception as e:
         print(f"Error encountered: {e}")
