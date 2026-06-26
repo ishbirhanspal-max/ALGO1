@@ -26,30 +26,45 @@ entry_price_a = 0.0
 entry_price_b = 0.0
 total_realized_pl = 0.0
 
-# 3. Setup CSV File (Creates file and adds Headers if it doesn't exist)
-csv_filename = 'trade_history.csv'
-with open(csv_filename, 'w', newline='') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Timestamp', 'Action', 'State', 'Asset A Price', 'Asset B Price', 'Realized P/L', 'Total P/L'])
+import ccxt
+import time
+import numpy as np
+from datetime import datetime
+import gspread
+from google.oauth2.service_account import stock-automation-487422-87d85d0a01ee.json
+
+# --- GOOGLE SHEETS SETUP ---
+# Define the API scopes required
+scopes = [
+    'https://www.googleapis.com/auth/spreadsheets',
+    'https://www.googleapis.com/auth/drive'
+]
+
+# Authenticate using the JSON file you downloaded
+print("Connecting to Google Sheets...")
+credentials = Credentials.from_service_account_file('credentials.json', scopes=scopes)
+client = gspread.authorize(credentials)
+
+# Open the specific sheet by name
+sheet = client.open('Crypto_Bot_Logs').sheet1
+
+# Optional: Write headers if the sheet is completely empty
+if not sheet.row_values(1):
+    sheet.append_row(['Timestamp', 'Action', 'State', 'Asset A Price', 'Asset B Price', 'Realized P/L', 'Total P/L'])
+
+print("✅ Connected to Google Sheets!")
 
 def log_trade(action, state, price_a, price_b, realized_pl, total_pl):
-    """Helper function to write a row to the CSV file"""
+    """Helper function to write a row directly to Google Sheets in real-time"""
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    with open(csv_filename, 'a', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([timestamp, action, state, price_a, price_b, round(realized_pl, 4), round(total_pl, 4)])
-
-print("Initializing bot and pre-seeding historical rolling window...")
-spread_history = []
-ohlcv_a = exchange.fetch_ohlcv(SYMBOL_A, timeframe='1m', limit=WINDOW_SIZE)
-ohlcv_b = exchange.fetch_ohlcv(SYMBOL_B, timeframe='1m', limit=WINDOW_SIZE)
-
-for i in range(len(ohlcv_a)):
-    spread_history.append(ohlcv_a[i][4] - ohlcv_b[i][4])
-
-print("Starting real-time Statistical Arbitrage execution loop...")
-print(f"Trades will be saved to: {csv_filename}")
-print("-" * 60)
+    row_data = [timestamp, action, state, price_a, price_b, round(realized_pl, 4), round(total_pl, 4)]
+    
+    try:
+        # Appends the new trade as a new row at the bottom of the sheet
+        sheet.append_row(row_data)
+        print("📝 Logged trade to Google Sheets successfully.")
+    except Exception as e:
+        print(f"⚠️ Failed to log to Sheets: {e}")
 
 # 4. Real-Time Execution Loop
 while True:
